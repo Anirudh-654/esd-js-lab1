@@ -9,13 +9,27 @@ const dec = document.querySelector("#dec");
 const reset = document.querySelector("#reset");
 const stepInput = document.querySelector("#step");
 
-// Stage 1 — one number, one button, one line that updates the page.
-let count = 0;
+import { useState } from "../src/s15-state.js";
 
-inc.addEventListener("click", () => {
-  count += 1;
-  countEl.textContent = count; // ← the line that "tells the screen"
+function render() {
+  const count = getCount();
+  countEl.textContent = count;
+  parityEl.textContent = count % 2 === 0 ? "even" : "odd";
+  dec.disabled = count - getStep() < 0;
+  document.title = `Count: ${count}`;
+}
+
+const [getCount, setCount] = useState(0, render);
+const [getStep, setStep] = useState(Number(stepInput.value), render);
+
+stepInput.addEventListener("input", () => {
+  const next = Number(stepInput.value);
+  if (Number.isInteger(next) && next >= 1) setStep(next);
 });
+inc.addEventListener("click", () => setCount((count) => count + getStep()));
+dec.addEventListener("click", () => setCount((count) => count - getStep()));
+reset.addEventListener("click", () => setCount(0));
+render();
 
 // Stage 2 — TODO: make "− Step" and "Reset" work the same way, then make the
 //   parity label ("even"/"odd"), the disabled "−" at zero, and the tab title
